@@ -16,3 +16,16 @@ resource "aws_vpc" "Collabo-Repo-vpc" {
     Name = "Collabo-Repo-vpc"
   }
 }
+
+resource "aws_internet_gateway" "Collabo-igw" {
+  vpc_id = aws_vpc.Collabo-Repo-vpc.id
+
+  tags = {
+    Name = "Collabo-igw"
+  }
+}
+
+resource "aws_internet_gateway_attachment" "Collabo-att" {
+  internet_gateway_id = aws_internet_gateway.Collabo-igw.id
+  vpc_id              = aws_vpc.Collabo-Repo-vpc.id
+}
