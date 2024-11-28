@@ -31,7 +31,7 @@ resource "aws_internet_gateway_attachment" "Collabo-att" {
 }
 
 #2 Create public Subnet
-resource "aws_subnet" "pub-subnet" {
+resource "aws_subnet" "public-subnet" {
   vpc_id     = aws_vpc.Collabo-Repo-vpc.id
   cidr_block = "172.20.1.0/24"
 
@@ -41,7 +41,7 @@ resource "aws_subnet" "pub-subnet" {
 }
 
 #2 Create private Subnet
-resource "aws_subnet" "pub-subnet" {
+resource "aws_subnet" "private-subnet" {
   vpc_id     = aws_vpc.Collabo-Repo-vpc.id
   cidr_block = "172.20.2.0/24"
 
