@@ -49,3 +49,21 @@ resource "aws_subnet" "private-subnet" {
     Name = "Main-privatesubnet"
   }
 }
+
+resource "aws_route_table" "Pub-rt" {
+  vpc_id = aws_vpc.Collabo-Repo-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.Collabo-igw.id
+  }
+
+  tags = {
+    Name = "public"
+  }
+}
+
+resource "aws_route_table_association" "Pub-rt" {
+  subnet_id      = aws_subnet.public-subnet.id
+  route_table_id = aws_route_table.Pub-rt.id
+}
