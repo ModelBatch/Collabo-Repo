@@ -102,3 +102,62 @@ subnet_id     = aws_subnet.public-subnet.id
   # on the Internet Gateway for the VPC.
   depends_on = [aws_internet_gateway.Collabo-igw]
 }
+
+# Configure public network ACLs to allow inbound HTTP and HTTPS traffic and deny all other traffic
+
+resource "aws_network_acl" "public-acl" {
+  vpc_id     = aws_vpc.Collabo-Repo-vpc.id
+  subnet_ids = [aws_subnet.public-subnet.id]
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 80
+    to_port    = 80
+  }
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 110
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 443
+    to_port    = 443
+  }
+
+  egress {
+    protocol   = "-1"
+    rule_no    = 120
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0  
+    to_port    = 0
+  }
+}
+
+#Configure private network ACLs to deny all inbound and outbound traffic
+
+resource "aws_network_acl" "priv-acl" {
+  vpc_id     = aws_vpc.Collabo-Repo-vpc.id
+  subnet_ids = [aws_subnet.priv-subnet.id]
+
+  ingress {
+    protocol   = "-1"
+    rule_no    = 100  
+    action     = "deny"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  egress {
+    protocol   = "-1"
+    rule_no    = 100
+    action     = "deny"
+    cidr_block = "0.0.0.0/0"  
+    from_port  = 0
+    to_port    = 0
+  }
+}
