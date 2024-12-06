@@ -103,7 +103,7 @@ subnet_id     = aws_subnet.public-subnet.id
   depends_on = [aws_internet_gateway.Collabo-igw]
 }
 
-# Configure public network ACLs to allow inbound HTTP and HTTPS traffic and deny all other traffic
+# Configure public Network ACLs to allow inbound HTTP and HTTPS traffic and deny all other traffic
 
 resource "aws_network_acl" "public-acl" {
   vpc_id     = aws_vpc.Collabo-Repo-vpc.id
@@ -137,11 +137,11 @@ resource "aws_network_acl" "public-acl" {
   }
 }
 
-#Configure private network ACLs to deny all inbound and outbound traffic
+#Configure private Network ACLs to deny all inbound and outbound traffic
 
 resource "aws_network_acl" "priv-acl" {
   vpc_id     = aws_vpc.Collabo-Repo-vpc.id
-  subnet_ids = [aws_subnet.priv-subnet.id]
+  subnet_ids = [aws_subnet.private-subnet.id]
 
   ingress {
     protocol   = "-1"
