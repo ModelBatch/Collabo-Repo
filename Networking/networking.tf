@@ -46,6 +46,6 @@ resource "aws_subnet" "private-subnet" {
   cidr_block = "172.20.2.0/24"
 
   tags = {
-    Name = "Main-private-subnet"
+    Name = "Main-privatesubnet"
   }
 }
