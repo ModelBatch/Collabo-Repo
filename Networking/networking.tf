@@ -63,9 +63,27 @@ resource "aws_route_table" "Pub-rt" {
   }
 }
 
+resource "aws_route_table" "private-rt" {
+  vpc_id = aws_vpc.Collabo-Repo-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.Collabo-NAT.id
+  }
+
+  tags = {
+    Name = "nat rt"
+  }
+}
+
 resource "aws_route_table_association" "Pub-rt" {
   subnet_id      = aws_subnet.public-subnet.id
   route_table_id = aws_route_table.Pub-rt.id
+}
+
+resource "aws_route_table_association" "Private-rt" {
+  subnet_id      = aws_subnet.private-subnet.id
+  route_table_id = aws_route_table.private-rt.id
 }
 
 resource "aws_eip" "Collabo-NAT" {
