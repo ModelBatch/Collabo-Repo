@@ -161,3 +161,110 @@ resource "aws_network_acl" "priv-acl" {
     to_port    = 0
   }
 }
+
+#Security group for web tier
+
+resource "aws_security_group" "web-sg" {
+  name        = "web-sg"
+  description = "Allow HTTPS, SSH, HTTP inbound traffic"
+  vpc_id      = aws_vpc.Collabo-Repo-vpc.id
+
+
+  ingress {
+    description = "TLS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ 
+  ingress {
+    description = "HTTP from VPC"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]      
+    }
+ 
+ ingress  {
+    description = "SSH from VPC"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]      
+    }
+    egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "web-sg"
+  }
+}
+
+#Security group for app tier
+
+resource "aws_security_group" "app-sg" {
+  name        = "app-sg"
+  description = "Allow HTTPS and HTTP inbound traffic"
+  vpc_id      = aws_vpc.Collabo-Repo-vpc.id
+
+ingress {
+    description = "TLS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ 
+  ingress {
+    description = "HTTP from VPC"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]      
+    }
+ 
+    egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "application-sg"
+  }
+}
+
+#Security group for database tier 
+
+resource "aws_security_group" "db-sg" {
+  name        = "db-sg"
+  description = "Allow inbound traffic on port 3306"
+  vpc_id      = aws_vpc.Collabo-Repo-vpc.id
+
+ingress {
+    description = "TLS from VPC"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["172.20.0.0/20"]
+  }     
+
+    egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    }   
+
+    tags = {
+    Name = "database-sg"
+    } 
+}
