@@ -268,3 +268,136 @@ ingress {
     Name = "database-sg"
     } 
 }
+
+data "aws_ami" "linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+}
+
+# launch template for web tier
+
+resource "aws_launch_template" "web-launch-template" {
+  name_prefix   = "web-launch-template"
+  image_id      = data.aws_ami.linux.id
+  instance_type = "t2.micro"
+
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.web-sg.id]
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "web-instance"
+    }
+  }
+}
+
+# Auto scaling group for web tier
+
+resource "aws_autoscaling_group" "web-asg" {
+  name             = "web-asg"
+  desired_capacity = 1
+  max_size         = 2
+  min_size         = 1
+  launch_template {
+    id      = aws_launch_template.web-launch-template.id
+    version = "$Latest"
+  }
+  vpc_zone_identifier = [aws_subnet.public-subnet.id]
+}
+
+# launch ec2 instance for web tier
+
+resource "aws_instance" "web-instance" {
+  ami           = data.aws_ami.linux.id
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.public-subnet.id
+  associate_public_ip_address = true
+  vpc_security_group_ids = [aws_security_group.web-sg.id]
+  key_name = "Demo-key"
+
+  connection {
+    type = "ssh"
+    user = "ec2-user"
+    private_key = file("~/.ssh/Demo-key.pem")
+    host = self.public_ip
+  }
+  tags = {
+    Name = "web-instance" 
+  }
+}
+
+# launch template for app tier
+
+resource "aws_launch_template" "app-launch-template" {
+  name_prefix   = "app-launch-template"
+  image_id      = data.aws_ami.linux.id
+  instance_type = "t2.micro"
+
+  network_interfaces {
+    associate_public_ip_address = false
+    security_groups             = [aws_security_group.app-sg.id]
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "app-instance"
+    }
+  }
+}
+
+# Auto scaling group for app tier
+
+resource "aws_autoscaling_group" "app-asg" {
+  name             = "app-asg"
+  desired_capacity = 1
+  max_size         = 2
+  min_size         = 1
+  launch_template {
+    id      = aws_launch_template.app-launch-template.id
+    version = "$Latest"
+  }
+  vpc_zone_identifier = [aws_subnet.private-subnet.id]    
+}
+
+# launch ec2 instance for app tier
+
+resource "aws_instance" "app-instance" {
+  ami           = data.aws_ami.linux.id
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.private-subnet.id
+  vpc_security_group_ids = [aws_security_group.app-sg.id]
+
+  tags = {
+    Name = "app-instance" 
+  }
+}
+  
